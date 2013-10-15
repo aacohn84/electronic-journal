@@ -5,6 +5,7 @@ import java.sql.SQLException;
 
 public class User {
     	// data members
+    	private int id;
 	private String profileImageURI;
 	private String firstName;
 	private String lastName;
@@ -17,12 +18,14 @@ public class User {
 	}
 	
 	// getters
+	public int getId() { return id; }
 	public String getProfileImageURI() { return profileImageURI; }	
 	public String getFirstName() { return firstName; }
 	public String getLastName() { return lastName; }
 	public String getUniqueName() { return uniqueName; }
 	
 	// setters
+	public void setId(int id) { this.id = id; }
 	public void setProfileImageURI(String profileImageURI) { this.profileImageURI = profileImageURI; }
 	public void setFirstName(String firstName) { this.firstName = firstName; }
 	public void setLastName(String lastName) { this.lastName = lastName; }
@@ -34,4 +37,5 @@ public class User {
 	public String getFullName() {
 		return this.firstName + " " + this.lastName;
 	}
+	
 }
