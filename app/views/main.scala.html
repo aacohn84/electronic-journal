@@ -1,0 +1,14 @@
+@* main Template File *@
+@(param: Any)(content: Html)
+
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<link type="text/css" href="@routes.Assets.at("stylesheets/profile.css")" rel="stylesheet">
+	</head>
+	<body>
+		<div id="content">
+			@content
+		</div>
+	</body>
+</html>

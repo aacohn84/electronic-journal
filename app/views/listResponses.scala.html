@@ -1,0 +1,34 @@
+@* listResponses Helper Template *@
+@(student: User, responses: java.util.Map[Prompt, models.Response])
+
+@for(entry <- responses.entrySet()) {
+	@defining(entry.getKey()) { prompt =>
+	@defining(entry.getValue()) { response =>
+	<section>
+		<div class="prompt">
+			<h4 class="section-heading">Prompt from </h4>
+			@prompt.getText()
+		</div>
+		<div class="profile-pic-tiny">
+			<img src="@routes.Assets.at("images/tiny-profile-pic.png")">
+		</div>
+		<div class="response">
+			<a href="#">@student.getFullName()</a><br>
+			@response.getText()
+			@for(comment <- response.getComments()) {
+				@defining(comment.getCommenter()) { commenter =>
+				<div class="comment">
+					<div class="profile-pic-tiny">
+						<img src="@routes.Assets.at("images/tiny-profile-pic.png")">
+					</div>
+					<div class="comment-text">
+						<a href="#">@commenter.getFullName()</a><br>
+						@comment.getText()
+					</div>
+				</div>
+				}
+			}
+	</section>
+	} @* /define: response *@
+	} @* /define: prompt *@
+}
