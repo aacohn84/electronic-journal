@@ -99,4 +99,27 @@ public class EJDatabase {
 	
 	return null;
     }
+
+    /**
+     * Saves a new prompt to the database
+     * @param creator - id of the user creating the prompt
+     * @param groupId - id of the group that can respond to this prompt
+     * @param promptText - the prompt itself
+     */
+    public static void writePrompt(int creator, int groupId, String promptText) {
+	final String writePromptCall = "call WRITE_PROMPT(?,?,?);";
+	
+	try (Connection c = DB.getConnection();
+		CallableStatement writePromptStmt = c.prepareCall(writePromptCall);) {
+	    
+	    writePromptStmt.setInt(1, creator);
+	    writePromptStmt.setInt(2, groupId);
+	    writePromptStmt.setString(3, promptText);
+	    
+	    writePromptStmt.executeQuery();
+	    
+	} catch (SQLException e) {
+	    e.printStackTrace();
+	}
+    }
 }

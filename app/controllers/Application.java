@@ -4,6 +4,7 @@ import models.EJDatabase;
 import models.User;
 import models.WritingFeed;
 import play.*;
+import play.data.DynamicForm;
 import play.data.Form;
 import static play.data.Form.form;
 import play.mvc.*;
@@ -13,28 +14,41 @@ public class Application extends Controller {
     
     final static Form<User.Form> loginForm = form(User.Form.class, User.Form.Login.class);
     final static Form<User.Form> signupForm = form(User.Form.class, User.Form.SignUp.class);
+
     public static Result index() {
-	String username = request().getQueryString("user");
+        return ok(writePrompt.render(1));
+    }
+    
+    /**
+     * Submit new prompt
+     */
+    public static Result submitPrompt() {
+	// parse POST request
+	DynamicForm postData = form().bindFromRequest();
+	String promptText = postData.get("promptText");
+	String groupIdStr = postData.get("groupId");
+	int groupId = Integer.parseInt(groupIdStr);
+	/*String creatorStr = session().get("userId");
+	int creator = Integer.parseInt(creatorStr);*/
 	
-	User user = EJDatabase.getUser(username);
-	WritingFeed writingFeed = EJDatabase.getWritingFeed(user.getId());
+	EJDatabase.writePrompt(1, groupId, promptText);
 	
-        return ok(profile.render(null, null));
+	return ok();
     }
     
     /**
      * Login page.
      */
-    public static Result login() {
+    /*public static Result login() {
         return ok(
             login.render(loginForm)
         );
-    }
+    }*/
     
     /**
      * Handle login form submission.
      */
-    public static Result authenticate() {
+    /*public static Result authenticate() {
         Form<User.Form> filledLoginForm = loginForm.bindFromRequest();
         
 	if (filledLoginForm.hasErrors()) {
@@ -53,17 +67,17 @@ public class Application extends Controller {
 		Logger.info(username + " logged in.");
 	    }
         }
-    }
+    }*/
 
     /**
      * Logout and clean the session.
      */
-    public static Result logout() {
+    /*public static Result logout() {
     	Logger.info("Logging out user: " + session().get("username"));
         session().clear();
         flash("success", "You've been logged out");
         return redirect(
             routes.Application.login()
         );
-    }
+    }*/
 }
