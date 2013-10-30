@@ -1,0 +1,21 @@
+@CHARSET "ISO-8859-1";
+
+html, body {
+  font-family: sans-serif;
+}
+
+.login-centered {
+  max-width: 250px;
+  padding: 20px;
+  margin-top: 5%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.login-centered fieldset {
+  border-radius: 10px;
+}
+
+.login-centered input {
+  margin-bottom: 10px;
+}

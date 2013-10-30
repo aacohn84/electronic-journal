@@ -49,6 +49,8 @@ public class EJDatabase {
 	 * 		get the original prompt
 	 * 		get the comments
 	 */
+	WritingFeed writingFeed = new WritingFeed();
+	
 	final String getResponsesCall = "call {GET_RESPONSES(?)}";
 	final String getPromptCall = "call {GET_PROMPT(?)}";
 	final String getCommentsCall = "call {GET_COMMENTS(?)}";
@@ -61,6 +63,7 @@ public class EJDatabase {
 	    ResultSet getResponsesResultSet = getResponsesStmt.executeQuery();
 	    
 	    while (getResponsesResultSet.next()) {
+		// get the prompt
 		final int promptId = getResponsesResultSet.getInt("id_prompt");
 		getPromptStmt.setInt(1, promptId);
 		ResultSet getPromptResultSet = getPromptStmt.executeQuery();
@@ -70,6 +73,7 @@ public class EJDatabase {
 		    prompt = new Prompt(getPromptResultSet);
 		}
 		
+		// get the comments
 		final int responseId = getResponsesResultSet.getInt("id_response");
 		getCommentsStmt.setInt(1, responseId);
 		ResultSet getCommentsResultSet = getCommentsStmt.executeQuery();
@@ -79,11 +83,15 @@ public class EJDatabase {
 		    Comment comment = new Comment(getCommentsResultSet);
 		    comments.add(comment);
 		}
-		
+		// build the response
 		Response response = new Response(getResponsesResultSet);
-		response.setResponder(responder); // TODO: Uhh, how do I do this? 
+		int responderId = getResponsesResultSet.getInt("id_responder");
+		User responder = getUser(responderId); // TODO: Implement caching for users
+		response.setResponder(responder); 
 		response.setPrompt(prompt);
 		response.setComments(comments);
+		
+		
 	    }
 	} catch (SQLException e) {
 	    e.printStackTrace();
