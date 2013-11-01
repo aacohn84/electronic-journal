@@ -99,15 +99,18 @@ public class EJDatabase {
 	
 	return null;
     }
-
+    
     /**
      * Saves a new prompt to the database
      * @param creator - id of the user creating the prompt
      * @param groupId - id of the group that can respond to this prompt
      * @param promptText - the prompt itself
+     * @throws EJDatabaseException 
      */
-    public static void writePrompt(int creator, int groupId, String promptText) {
-	final String writePromptCall = "call WRITE_PROMPT(?,?,?);";
+    public static void writePrompt(int creator, int groupId, String promptText) 
+	    throws EJDatabaseException {
+	
+	final String writePromptCall = "{call WRITE_PROMPT(?,?,?)}";
 	
 	try (Connection c = DB.getConnection();
 		CallableStatement writePromptStmt = c.prepareCall(writePromptCall);) {
@@ -116,10 +119,46 @@ public class EJDatabase {
 	    writePromptStmt.setInt(2, groupId);
 	    writePromptStmt.setString(3, promptText);
 	    
-	    writePromptStmt.executeQuery();
+	    int numRowsUpdated = writePromptStmt.executeUpdate();
+	    if (numRowsUpdated == 0) {
+		throw new EJDatabaseException("Problem adding new prompt to database"
+			+ "\nuser_id: " + creator 
+			+ "\ngroup_id: " + groupId 
+			+ "\ntext: " + promptText);
+	    }
 	    
 	} catch (SQLException e) {
 	    e.printStackTrace();
 	}
+    }
+
+    public static void saveResponse(int responderId, int promptId, String responseText) 
+	    throws EJDatabaseException {
+	
+	final String saveResponseCall = "{call SAVE_RESPONSE(?,?,?)}";
+	
+	try (Connection c = DB.getConnection();
+		CallableStatement saveResponseStmt = c.prepareCall(saveResponseCall);) {
+	    
+	    saveResponseStmt.setInt(1, responderId);
+	    saveResponseStmt.setInt(2, promptId);
+	    saveResponseStmt.setString(3, responseText);
+	    
+	    int numRowsUpdated = saveResponseStmt.executeUpdate();
+	    if (numRowsUpdated == 0) {
+		throw new EJDatabaseException("Problem saving response to database"
+			+ "\nresponder_id: " + responderId 
+			+ "\nprompt_id: " + promptId 
+			+ "\ntext: " + responseText);
+	    }
+	    
+	} catch (SQLException e) {
+	    e.printStackTrace();
+	}
+    }
+
+    public static Prompt getMostRecentPromptAndResponse(int groupId, int responderId) {
+	// TODO Auto-generated method stub
+	return null;
     }
 }

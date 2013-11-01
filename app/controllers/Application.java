@@ -1,6 +1,8 @@
 package controllers;
 
 import models.EJDatabase;
+import models.EJDatabaseException;
+import models.Prompt;
 import models.User;
 import models.WritingFeed;
 import play.*;
@@ -31,9 +33,45 @@ public class Application extends Controller {
 	/*String creatorStr = session().get("userId");
 	int creator = Integer.parseInt(creatorStr);*/
 	
-	EJDatabase.writePrompt(1, groupId, promptText);
+	try {
+	    EJDatabase.writePrompt(1, groupId, promptText);
+	} catch (EJDatabaseException e) {
+	    e.printStackTrace();
+	}
 	
 	return ok();
+    }
+    
+    public static Result showMostRecentPrompt() {
+	String groupIdStr = session().get("currentGroupSelection");
+	int groupId = Integer.parseInt(groupIdStr);
+	String responderIdStr = session().get("userId");
+	int responderId = Integer.parseInt(responderIdStr);
+	
+	Prompt p = EJDatabase.getMostRecentPromptAndResponse(groupId, responderId);
+	
+	return ok();
+    }
+    
+    /**
+     * Save response
+     */
+    public static Result saveResponse() {
+	// parse POST request
+	DynamicForm postData = form().bindFromRequest();
+	String responseText = postData.get("responseText");
+	String promptIdStr = postData.get("promptId");
+	int promptId = Integer.parseInt(promptIdStr);
+	/*String creatorStr = session().get("userId");
+	int creator = Integer.parseInt(creatorStr);*/
+	
+	try {
+	    EJDatabase.saveResponse(1, promptId, responseText);
+	} catch (EJDatabaseException e) {
+	    e.printStackTrace();
+	}
+	
+	return ok();	
     }
     
     /**

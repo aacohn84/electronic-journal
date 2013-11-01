@@ -78,10 +78,10 @@ CREATE TABLE IF NOT EXISTS `electronic-journal`.`prompt_response` (
   `id_responder` INT UNSIGNED NOT NULL,
   `text` VARCHAR(1024) NOT NULL,
   `creation_date` DATETIME NOT NULL,
-  PRIMARY KEY (`id_response`),
   UNIQUE INDEX `id_response_UNIQUE` (`id_response` ASC),
   INDEX `response_id_prompt_fk_idx` (`id_prompt` ASC),
   INDEX `response_id_responder_fk_idx` (`id_responder` ASC),
+  PRIMARY KEY (`id_prompt`, `id_responder`),
   CONSTRAINT `response_id_prompt_fk`
     FOREIGN KEY (`id_prompt`)
     REFERENCES `electronic-journal`.`prompt` (`id_prompt`)
@@ -330,6 +330,33 @@ BEGIN
 		`name`,
 		`subject`
 	);
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure SAVE_RESPONSE
+-- -----------------------------------------------------
+
+USE `electronic-journal`;
+DROP procedure IF EXISTS `electronic-journal`.`SAVE_RESPONSE`;
+
+DELIMITER $$
+USE `electronic-journal`$$
+CREATE PROCEDURE `SAVE_RESPONSE` (
+	IN responderId INT,
+	IN promptId INT,
+	IN responseText VARCHAR(1024))
+BEGIN
+	INSERT INTO `prompt_response` (
+		`id_responder`,
+		`id_prompt`,
+		`text`,
+		`creation_date`
+	) VALUES (
+		responderId, promptId, responseText, NOW()
+	) ON DUPLICATE KEY UPDATE 
+		`text` = values(`text`);
 END$$
 
 DELIMITER ;

@@ -1,0 +1,15 @@
+@(prompt: Prompt)
+
+@main("title") {
+  <form method="post" action="@routes.Application.submitPrompt()">
+    <h2>Respond to this prompt:</h2>
+    <div>
+      @if(prompt.getText() != null) {
+      	@prompt.getText()
+      }
+    </div>
+    <input type="hidden" name="promptId" value="@prompt.getPromptId()">
+    <textarea name="responseText"></textarea>
+    <button type="submit">Save</button>
+  </form>
+}

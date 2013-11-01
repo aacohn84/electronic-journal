@@ -9,3 +9,5 @@ GET     /                           controllers.Application.index()
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
 POST	/submitPrompt				controllers.Application.submitPrompt()
+GET		/mostRecentPrompt			controllers.Application.showMostRecentPrompt()
+POST	/saveResponse				controllers.Application.saveResponse()
