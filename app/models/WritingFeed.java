@@ -7,7 +7,7 @@ public class WritingFeed {
 	private Map<Prompt, Response> responses;
 
 	public WritingFeed() {
-	    responses = new HashMap<Prompt, Response>();
+		responses = new HashMap<Prompt, Response>();
 	}
 	
 	public Map<Prompt, Response> getResponses() { return responses; }
