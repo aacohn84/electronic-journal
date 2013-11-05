@@ -314,7 +314,7 @@ DROP procedure IF EXISTS `electronic-journal`.`CREATE_GROUP`;
 DELIMITER $$
 USE `electronic-journal`$$
 CREATE PROCEDURE `CREATE_GROUP` (
-	IN `teacherid` INT, 
+	IN `teacherId` INT, 
 	IN `period` INT, 
 	IN `name` VARCHAR(45), 
 	IN `subject` VARCHAR(45))
@@ -354,9 +354,78 @@ BEGIN
 		`text`,
 		`creation_date`
 	) VALUES (
-		responderId, promptId, responseText, NOW()
-	) ON DUPLICATE KEY UPDATE 
-		`text` = values(`text`);
+		responderId,
+		promptId,
+		responseText,
+		NOW()
+	) ON DUPLICATE KEY UPDATE `text` = values(`text`);
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure GET_MOST_RECENT_PROMPT_AND_RESPONSE
+-- -----------------------------------------------------
+
+USE `electronic-journal`;
+DROP procedure IF EXISTS `electronic-journal`.`GET_MOST_RECENT_PROMPT_AND_RESPONSE`;
+
+DELIMITER $$
+USE `electronic-journal`$$
+CREATE PROCEDURE `GET_MOST_RECENT_PROMPT_AND_RESPONSE` (
+	IN groupId INT, 
+	IN responderId INT)
+BEGIN
+	SELECT * 
+	FROM `prompt` LEFT JOIN (
+		SELECT * FROM `prompt_response` WHERE `id_responder` = responderId
+	) `prompt_response`
+	USING(`id_prompt`)
+	WHERE `id_group` = groupId
+	ORDER BY `prompt`.`creation_date`
+	LIMIT 1;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure ADD_TO_ROSTER
+-- -----------------------------------------------------
+
+USE `electronic-journal`;
+DROP procedure IF EXISTS `electronic-journal`.`ADD_TO_ROSTER`;
+
+DELIMITER $$
+USE `electronic-journal`$$
+CREATE PROCEDURE `ADD_TO_ROSTER` (IN `groupId` INT, IN `userId` INT)
+BEGIN
+	INSERT INTO `roster` (
+		`id_group`,
+		`id_user`
+	) VALUES (
+		`groupId`,
+		`userId`
+	) 
+	ON DUPLICATE KEY UPDATE `id_group` = `groupId`, `id_user` = `userid`;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure GET_GROUPS
+-- -----------------------------------------------------
+
+USE `electronic-journal`;
+DROP procedure IF EXISTS `electronic-journal`.`GET_GROUPS`;
+
+DELIMITER $$
+USE `electronic-journal`$$
+CREATE PROCEDURE `GET_GROUPS` (IN `userId` INT)
+BEGIN
+	SELECT * 
+	FROM `roster` LEFT JOIN `group`
+	USING(`id_group`)
+	WHERE `id_user` = `userId`;
 END$$
 
 DELIMITER ;
