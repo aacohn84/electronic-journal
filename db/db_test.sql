@@ -10,9 +10,9 @@ CALL ADD_TO_ROSTER(1,2);
 
 CALL ADD_TO_ROSTER(2,2);
 
-CALL WRITE_PROMPT(1,1,'1st prompt');
+CALL WRITE_PROMPT(1,'1st prompt');
 
-CALL WRITE_PROMPT(1,1,'2nd prompt');
+CALL WRITE_PROMPT(1,'2nd prompt');
 
 CALL SAVE_RESPONSE(2,1,'response to 1st prompt');
 

@@ -23,6 +23,27 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
+-- Table `electronic-journal`.`prompt`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `electronic-journal`.`prompt` ;
+
+CREATE TABLE IF NOT EXISTS `electronic-journal`.`prompt` (
+  `id_prompt` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `id_group` INT UNSIGNED NOT NULL,
+  `text` VARCHAR(1024) NOT NULL,
+  `creation_date` DATETIME NOT NULL,
+  PRIMARY KEY (`id_prompt`),
+  UNIQUE INDEX `id_prompt_UNIQUE` (`id_prompt` ASC),
+  INDEX `prompt_id_group_fk_idx` (`id_group` ASC),
+  CONSTRAINT `prompt_id_group_fk`
+    FOREIGN KEY (`id_group`)
+    REFERENCES `electronic-journal`.`group` (`id_group`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
 -- Table `electronic-journal`.`user`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `electronic-journal`.`user` ;
@@ -36,34 +57,6 @@ CREATE TABLE IF NOT EXISTS `electronic-journal`.`user` (
   PRIMARY KEY (`id_user`),
   UNIQUE INDEX `unique_name_UNIQUE` (`unique_name` ASC),
   UNIQUE INDEX `iduser_UNIQUE` (`id_user` ASC))
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `electronic-journal`.`prompt`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `electronic-journal`.`prompt` ;
-
-CREATE TABLE IF NOT EXISTS `electronic-journal`.`prompt` (
-  `id_prompt` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `id_creator` INT UNSIGNED NOT NULL,
-  `id_group` INT UNSIGNED NOT NULL,
-  `text` VARCHAR(1024) NOT NULL,
-  `creation_date` DATETIME NOT NULL,
-  PRIMARY KEY (`id_prompt`),
-  UNIQUE INDEX `id_prompt_UNIQUE` (`id_prompt` ASC),
-  INDEX `prompt_id_creator_fk_idx` (`id_creator` ASC),
-  INDEX `prompt_id_group_fk_idx` (`id_group` ASC),
-  CONSTRAINT `prompt_id_creator_fk`
-    FOREIGN KEY (`id_creator`)
-    REFERENCES `electronic-journal`.`user` (`id_user`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `prompt_id_group_fk`
-    FOREIGN KEY (`id_group`)
-    REFERENCES `electronic-journal`.`group` (`id_group`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
@@ -257,15 +250,13 @@ DROP procedure IF EXISTS `electronic-journal`.`WRITE_PROMPT`;
 
 DELIMITER $$
 USE `electronic-journal`$$
-CREATE PROCEDURE `WRITE_PROMPT` (IN `creatorId` INT, IN `groupId` INT, IN `promptText` VARCHAR(1024))
+CREATE PROCEDURE `WRITE_PROMPT` (IN `groupId` INT, IN `promptText` VARCHAR(1024))
 BEGIN
 	INSERT INTO `Prompt` (
-		`id_creator`,
 		`id_group`,
 		`text`,
 		`creation_date`
 	) VALUES (
-		`creatorId`,
 		`groupId`,
 		`promptText`,
 		NOW()
