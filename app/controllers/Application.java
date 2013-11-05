@@ -1,8 +1,12 @@
 package controllers;
 
+import java.util.ArrayList;
+
 import models.EJDatabase;
 import models.EJDatabaseException;
+import models.Group;
 import models.Prompt;
+import models.Response;
 import models.User;
 import models.WritingFeed;
 import play.*;
@@ -10,6 +14,7 @@ import play.data.DynamicForm;
 import play.data.Form;
 import static play.data.Form.form;
 import play.mvc.*;
+import util.Pair;
 import views.html.*;
 
 public class Application extends Controller {
@@ -47,15 +52,23 @@ public class Application extends Controller {
 	}
 
 	public static Result showMostRecentPrompt() {
-		String groupIdStr = session().get("currentGroupSelection");
+		DynamicForm requestData = form().bindFromRequest();
+		String groupIdStr = requestData.get("groupId");
 		int groupId = Integer.parseInt(groupIdStr);
-		String responderIdStr = session().get("userId");
-		int responderId = Integer.parseInt(responderIdStr);
+		/*String responderIdStr = session().get("userId");
+		int responderId = Integer.parseInt(responderIdStr);*/
 
-		Prompt p = EJDatabase.getMostRecentPromptAndResponse(groupId,
-				responderId);
+		Pair<Prompt, Response> mostRecentPromptAndResponse = EJDatabase
+				.getMostRecentPromptAndResponse(groupId, 2);
+		
+		if (mostRecentPromptAndResponse == null) {
+			return ok("No prompts exist for this class yet.");
+		}
+		
+		Prompt p = mostRecentPromptAndResponse.getA();
+		Response r = mostRecentPromptAndResponse.getB();
 
-		return ok();
+		return ok(respond.render(p, r));
 	}
 
 	/**
@@ -63,9 +76,11 @@ public class Application extends Controller {
 	 */
 	public static Result saveResponse() {
 		// parse POST request
-		DynamicForm postData = form().bindFromRequest();
-		String responseText = postData.get("responseText");
-		String promptIdStr = postData.get("promptId");
+		DynamicForm requestData = form().bindFromRequest();
+		String responseText = requestData.get("responseText");
+		String promptIdStr = requestData.get("promptId");
+		String groupIdStr = requestData.get("groupId");
+		
 		int promptId = Integer.parseInt(promptIdStr);
 		/*
 		 * String creatorStr = session().get("userId"); int creator =
@@ -73,12 +88,24 @@ public class Application extends Controller {
 		 */
 
 		try {
-			EJDatabase.saveResponse(1, promptId, responseText);
+			EJDatabase.saveResponse(2, promptId, responseText);
 		} catch (EJDatabaseException e) {
 			e.printStackTrace();
 		}
 
-		return ok();
+		return redirect("/mostRecentPrompt?groupId=" + groupIdStr);
+	}
+	
+	public static Result showClasses() {
+		ArrayList<Group> groups = EJDatabase.getGroups(2);
+		return ok(showClasses.render(groups));
+	}
+	
+	public static Result chooseClass() {
+		String groupIdStr = request().getQueryString("groupId");
+		int groupId = Integer.parseInt(groupIdStr);
+		
+		return null;
 	}
 
 	/**

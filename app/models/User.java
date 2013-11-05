@@ -8,7 +8,6 @@ import play.data.validation.Constraints.MinLength;
 import play.data.validation.Constraints.Required;
 
 public class User {
-	// data members
 	private int id;
 	private String firstName;
 	private String lastName;
@@ -23,14 +22,12 @@ public class User {
 		password = rs.getString("password");
 	}
 
-	// getters
 	public int getId() { return id; }
 	public String getFirstName() { return firstName; }
 	public String getLastName() { return lastName; }
 	public String getUniqueName() { return uniqueName; }
 	public String getPassword() { return password; }
 
-	// setters
 	public void setId(int id) { this.id = id; }
 	public void setFirstName(String firstName) { this.firstName = firstName; }
 	public void setLastName(String lastName) { this.lastName = lastName; }

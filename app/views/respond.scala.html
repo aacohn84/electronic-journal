@@ -1,15 +1,20 @@
-@(prompt: Prompt)
+@(prompt: Prompt, response: models.Response)
 
 @main("title") {
-  <form method="post" action="@routes.Application.submitPrompt()">
+  <form method="post" action="@routes.Application.saveResponse()">
     <h2>Respond to this prompt:</h2>
     <div>
-      @if(prompt.getText() != null) {
+      @if(prompt != null) {
       	@prompt.getText()
       }
     </div>
     <input type="hidden" name="promptId" value="@prompt.getPromptId()">
-    <textarea name="responseText"></textarea>
+    <input type="hidden" name="groupId" value="@prompt.getGroupId()">
+    @if(response != null) {
+    	<textarea name="responseText">@response.getText()</textarea>
+    } else {
+        <textarea name="responseText"></textarea>
+    }
     <button type="submit">Save</button>
   </form>
 }

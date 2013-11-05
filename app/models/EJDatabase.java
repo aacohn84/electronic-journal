@@ -3,10 +3,12 @@ package models;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 import play.db.DB;
+import util.Pair;
 
 public class EJDatabase {
 
@@ -40,65 +42,6 @@ public class EJDatabase {
 			e.printStackTrace();
 		}
 		return user;
-	}
-
-	public static WritingFeed getWritingFeed(int userId) {
-		/*
-		 * get all responses for user for each response get the original prompt
-		 * get the comments
-		 */
-		WritingFeed writingFeed = new WritingFeed();
-
-		final String getResponsesCall = "call {GET_RESPONSES(?)}";
-		final String getPromptCall = "call {GET_PROMPT(?)}";
-		final String getCommentsCall = "call {GET_COMMENTS(?)}";
-		try (Connection c = DB.getConnection();
-				CallableStatement getResponsesStmt = c
-						.prepareCall(getResponsesCall);
-				CallableStatement getPromptStmt = c.prepareCall(getPromptCall);
-				CallableStatement getCommentsStmt = c
-						.prepareCall(getCommentsCall);) {
-
-			getResponsesStmt.setInt(1, userId);
-			ResultSet getResponsesResultSet = getResponsesStmt.executeQuery();
-
-			while (getResponsesResultSet.next()) {
-				// get the prompt
-				final int promptId = getResponsesResultSet.getInt("id_prompt");
-				getPromptStmt.setInt(1, promptId);
-				ResultSet getPromptResultSet = getPromptStmt.executeQuery();
-
-				Prompt prompt = null;
-				if (getPromptResultSet.first()) {
-					prompt = new Prompt(getPromptResultSet);
-				}
-
-				// get the comments
-				final int responseId = getResponsesResultSet
-						.getInt("id_response");
-				getCommentsStmt.setInt(1, responseId);
-				ResultSet getCommentsResultSet = getCommentsStmt.executeQuery();
-
-				ArrayList<Comment> comments = new ArrayList<Comment>();
-				while (getCommentsResultSet.next()) {
-					Comment comment = new Comment(getCommentsResultSet);
-					comments.add(comment);
-				}
-				// build the response
-				Response response = new Response(getResponsesResultSet);
-				int responderId = getResponsesResultSet.getInt("id_responder");
-				User responder = getUser(responderId); // TODO: Implement
-														// caching for users
-				response.setResponder(responder);
-				response.setPrompt(prompt);
-				response.setComments(comments);
-
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-		return null;
 	}
 
 	/**
@@ -165,9 +108,77 @@ public class EJDatabase {
 		}
 	}
 
-	public static Prompt getMostRecentPromptAndResponse(int groupId,
+	/**
+	 * Gets the most recent prompt for the group specified by <code>groupId</code>, and the response 
+	 * of the user specified by <code>responderId</code>, if one exists.
+	 * @param groupId - id of the group to fetch a prompt from
+	 * @param responderId - id of the user whose response should be fetched
+	 * @return a <code>Pair</code> containing <code>Prompt</code> and <code>Response</code>.
+	 * Returns <code>null</code> if no results were found. <code>Response</code> is <code>null</code> 
+	 * if no response exists.
+	 */
+	public static Pair<Prompt, Response> getMostRecentPromptAndResponse(int groupId,
 			int responderId) {
-		// TODO Auto-generated method stub
-		return null;
+
+		final String getMostRecentPromptAndResponseCall = "{call GET_MOST_RECENT_PROMPT_AND_RESPONSE(?,?)}";
+
+		Pair<Prompt, Response> p = null;
+		
+		try (Connection c = DB.getConnection();
+				CallableStatement getMostRecentPromptAndResponseStmt = c
+						.prepareCall(getMostRecentPromptAndResponseCall);) {
+
+			getMostRecentPromptAndResponseStmt.setInt(1, groupId);
+			getMostRecentPromptAndResponseStmt.setInt(2, responderId);
+
+			ResultSet rs = getMostRecentPromptAndResponseStmt.executeQuery();
+
+			if (rs.first()) {
+				printResultSetColumnNames(rs);
+				p = new Pair<Prompt, Response>();
+				p.setA(new Prompt(rs));
+				if (rs.getString("prompt_response.text") != null) {
+					p.setB(new Response(rs));
+				}
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return p;
+	}
+	
+	public static ArrayList<Group> getGroups(int userId) {
+		final String getGroupsCall = "{call GET_GROUPS(?)}";
+
+		ArrayList<Group> groups = new ArrayList<Group>();
+		
+		try (Connection c = DB.getConnection();
+				CallableStatement getGroupsStmt = c.prepareCall(getGroupsCall);) {
+
+			getGroupsStmt.setInt(1, userId);
+
+			ResultSet rs = getGroupsStmt.executeQuery();
+
+			while (rs.next()) {
+				Group g = new Group(rs);
+				groups.add(g);
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return groups;
+	}
+	
+	private static void printResultSetColumnNames(ResultSet rs) throws SQLException {
+		ResultSetMetaData metaData = rs.getMetaData();
+		int columnCount = metaData.getColumnCount();
+		for (int i = 1; i < columnCount; i++) {
+			System.out.print(metaData.getColumnName(i) + ", ");
+		}
+		System.out.print(metaData.getColumnName(columnCount) + "\n");
 	}
 }
