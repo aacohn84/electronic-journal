@@ -41,15 +41,20 @@ public class User {
 		return this.firstName + " " + this.lastName;
 	}
 
+	/**
+	 * Checks that the specified user exists in the database, and that the
+	 * specified password matches the one found for that user.
+	 * 
+	 * @param username
+	 *            - unique name of the user to authenticate
+	 * @param password
+	 *            - the password associated with <code>username</code>
+	 * @return a <code>User</code> object if successful, otherwise
+	 *         <code>null</code>.
+	 */
 	public static User authenticate(String username, String password) {
-		User u = EJDatabase.getUser(username);
-		User result = null;
-
-		if (u != null && u.password.equals(password)) {
-			result = u;
-		}
-
-		return result;
+		User u = EJDatabase.getUser(username, password);
+		return u;
 	}
 
 	public static class Form {
@@ -57,17 +62,13 @@ public class User {
 		public interface SignUp {};
 
 		@Required(groups = { Login.class, SignUp.class })
-		@MinLength(value = 6, message = "too short (min is 6 chars)",
-				groups = {Login.class, SignUp.class })
-		@MaxLength(value = 45, message = "too long (max is 45 chars)",
-				groups = {Login.class, SignUp.class })
+		@MinLength(value = 6, message = "too short (min is 6 chars)", groups = { SignUp.class })
+		@MaxLength(value = 45, message = "too long (max is 45 chars)", groups = { SignUp.class })
 		private String username;
 
 		@Required(groups = { Login.class, SignUp.class })
-		@MinLength(value = 6, message = "too short (min is 6 chars)",
-				groups = {Login.class, SignUp.class })
-		@MaxLength(value = 45, message = "too long (max is 45 chars)",
-				groups = {Login.class, SignUp.class })
+		@MinLength(value = 6, message = "too short (min is 6 chars)", groups = { SignUp.class })
+		@MaxLength(value = 45, message = "too long (max is 45 chars)", groups = { SignUp.class })
 		private String password;
 
 		@Required(groups = { SignUp.class })
@@ -85,14 +86,12 @@ public class User {
 		@MaxLength(value = 45, message = "too long (max is 45 chars)", groups = { SignUp.class })
 		private String lastName;
 		
-		// getters
 		public String getUsername() { return username; }
 		public String getPassword() { return password; }
 		public String getPasswordRetype() { return passwordRetype; }
 		public String getFirstName() { return firstName; }
 		public String getLastName() { return lastName; }
 		
-		// setters
 		public void setUsername(String username) { this.username = username; }
 		public void setPassword(String password) { this.password = password; }
 		public void setPasswordRetype(String passwordRetype) { this.passwordRetype = passwordRetype; }

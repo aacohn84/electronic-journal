@@ -1,11 +1,9 @@
-@(groups: java.util.ArrayList[Group])
+@(groups: java.util.ArrayList[Group], action: Call)
 
 @main("Choose class") {
-  <form method="post" action="">
-    <ul>
-      @for(group <- groups) {
-      	<li><a href="@routes.Application.showMostRecentPrompt()?groupId=@group.getGroupId()">@group.getSubject(), period @group.getPeriod()</a></li>
-      }
-    </ul>
-  </form>
+  <ul>
+    @for(group <- groups) {
+    	<li><a href="@action?groupId=@group.getGroupId()">@group.getSubject(), period @group.getPeriod()</a></li>
+    }
+  </ul>
 }

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/login.css")">
+    <meta charset="ISO-8859-1">
+    <title>Welcome!</title>
+  </head>
+  <body>
+    <div class="login-centered">
+      <form class="inputs-stacked" method="post" action="@routes.Application.authenticate()">
+        <fieldset>
+          <legend>Log in</legend>
+          <label>User name:
+            <input type="text" name="username" required>
+          </label>
+          <label>Password:
+            <input type="password" name="password" required>
+          </label>
+          <button type="submit">Log in</button>
+        </fieldset>
+      </form>
+      First time here? <a href="NewAccount.html">Create an account.</a>
+    </div>
+  </body>
+</html>

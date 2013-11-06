@@ -7,6 +7,40 @@ CREATE SCHEMA IF NOT EXISTS `electronic-journal` DEFAULT CHARACTER SET utf8 COLL
 USE `electronic-journal` ;
 
 -- -----------------------------------------------------
+-- Table `electronic-journal`.`user`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `electronic-journal`.`user` ;
+
+CREATE TABLE IF NOT EXISTS `electronic-journal`.`user` (
+  `id_user` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `unique_name` VARCHAR(45) NOT NULL,
+  `password` VARCHAR(45) NOT NULL,
+  `first_name` VARCHAR(45) NOT NULL,
+  `last_name` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id_user`),
+  UNIQUE INDEX `unique_name_UNIQUE` (`unique_name` ASC),
+  UNIQUE INDEX `iduser_UNIQUE` (`id_user` ASC))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `electronic-journal`.`teacher`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `electronic-journal`.`teacher` ;
+
+CREATE TABLE IF NOT EXISTS `electronic-journal`.`teacher` (
+  `id_teacher` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`id_teacher`),
+  UNIQUE INDEX `id_teacher_UNIQUE` (`id_teacher` ASC),
+  CONSTRAINT `teacher_id_teacher_fk`
+    FOREIGN KEY (`id_teacher`)
+    REFERENCES `electronic-journal`.`user` (`id_user`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
 -- Table `electronic-journal`.`group`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `electronic-journal`.`group` ;
@@ -18,7 +52,13 @@ CREATE TABLE IF NOT EXISTS `electronic-journal`.`group` (
   `name` VARCHAR(45) NOT NULL,
   `subject` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`id_group`),
-  UNIQUE INDEX `id_group_UNIQUE` (`id_group` ASC))
+  UNIQUE INDEX `id_group_UNIQUE` (`id_group` ASC),
+  INDEX `group_id_teacher_fk_idx` (`id_teacher` ASC),
+  CONSTRAINT `group_id_teacher_fk`
+    FOREIGN KEY (`id_teacher`)
+    REFERENCES `electronic-journal`.`teacher` (`id_teacher`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
@@ -40,23 +80,6 @@ CREATE TABLE IF NOT EXISTS `electronic-journal`.`prompt` (
     REFERENCES `electronic-journal`.`group` (`id_group`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `electronic-journal`.`user`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `electronic-journal`.`user` ;
-
-CREATE TABLE IF NOT EXISTS `electronic-journal`.`user` (
-  `id_user` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `unique_name` VARCHAR(45) NOT NULL,
-  `password` VARCHAR(45) NOT NULL,
-  `first_name` VARCHAR(45) NOT NULL,
-  `last_name` VARCHAR(45) NOT NULL,
-  PRIMARY KEY (`id_user`),
-  UNIQUE INDEX `unique_name_UNIQUE` (`unique_name` ASC),
-  UNIQUE INDEX `iduser_UNIQUE` (`id_user` ASC))
 ENGINE = InnoDB;
 
 
@@ -110,42 +133,6 @@ CREATE TABLE IF NOT EXISTS `electronic-journal`.`comment` (
     ON UPDATE NO ACTION,
   CONSTRAINT `comment_id_commenter_fk`
     FOREIGN KEY (`id_commenter`)
-    REFERENCES `electronic-journal`.`user` (`id_user`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `electronic-journal`.`profile_question`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `electronic-journal`.`profile_question` ;
-
-CREATE TABLE IF NOT EXISTS `electronic-journal`.`profile_question` (
-  `id_question` INT UNSIGNED NOT NULL,
-  `text` VARCHAR(140) NOT NULL,
-  PRIMARY KEY (`id_question`))
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `electronic-journal`.`profile_answer`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `electronic-journal`.`profile_answer` ;
-
-CREATE TABLE IF NOT EXISTS `electronic-journal`.`profile_answer` (
-  `id_user` INT UNSIGNED NOT NULL,
-  `id_question` INT UNSIGNED NOT NULL,
-  `text` VARCHAR(140) NOT NULL,
-  PRIMARY KEY (`id_user`),
-  INDEX `answer_id_question_fk_idx` (`id_question` ASC),
-  CONSTRAINT `answer_id_question_fk`
-    FOREIGN KEY (`id_question`)
-    REFERENCES `electronic-journal`.`profile_question` (`id_question`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `answer_id_user_fk`
-    FOREIGN KEY (`id_user`)
     REFERENCES `electronic-journal`.`user` (`id_user`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
@@ -417,6 +404,93 @@ BEGIN
 	FROM `roster` LEFT JOIN `group`
 	USING(`id_group`)
 	WHERE `id_user` = `userId`;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure SET_TEACHER
+-- -----------------------------------------------------
+
+USE `electronic-journal`;
+DROP procedure IF EXISTS `electronic-journal`.`SET_TEACHER`;
+
+DELIMITER $$
+USE `electronic-journal`$$
+CREATE PROCEDURE `SET_TEACHER` (IN userId INT, IN isTeacher BOOL)
+BEGIN
+	IF isTeacher = TRUE THEN
+		INSERT INTO `teacher` VALUES (userId) 
+		ON DUPLICATE KEY UPDATE `id_teacher` = userId;
+	ELSE
+		DELETE FROM `teacher` WHERE `id_teacher` = userId;
+	END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure GET_USER_BY_NAME_AND_PASSWORD
+-- -----------------------------------------------------
+
+USE `electronic-journal`;
+DROP procedure IF EXISTS `electronic-journal`.`GET_USER_BY_NAME_AND_PASSWORD`;
+
+DELIMITER $$
+USE `electronic-journal`$$
+CREATE PROCEDURE `GET_USER_BY_NAME_AND_PASSWORD` (
+	IN `username` VARCHAR(45), 
+	IN `password` VARCHAR(45))
+BEGIN
+	SELECT * FROM `user` WHERE `unique_name` = `username` AND `user`.`password` = `password`;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure IS_TEACHER
+-- -----------------------------------------------------
+
+USE `electronic-journal`;
+DROP procedure IF EXISTS `electronic-journal`.`IS_TEACHER`;
+
+DELIMITER $$
+USE `electronic-journal`$$
+CREATE PROCEDURE `IS_TEACHER` (
+	IN `userId` INT,
+	OUT `isTeacher` BOOLEAN)
+BEGIN
+	DECLARE teacherId INT;
+
+	DECLARE cur1 CURSOR FOR 
+		SELECT * FROM `teacher` WHERE `id_teacher` = `userId`;
+	
+	SET `isTeacher` = FALSE;
+	
+	OPEN cur1;
+	FETCH cur1 INTO teacherId;
+	
+	IF teacherId IS NOT NULL THEN 
+		SET `isTeacher` = TRUE;
+	END IF;
+	
+	CLOSE cur1;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure GET_GROUPS_TAUGHT_BY_USER
+-- -----------------------------------------------------
+
+USE `electronic-journal`;
+DROP procedure IF EXISTS `electronic-journal`.`GET_GROUPS_TAUGHT_BY_USER`;
+
+DELIMITER $$
+USE `electronic-journal`$$
+CREATE PROCEDURE `GET_GROUPS_TAUGHT_BY_USER` (IN `teacherId` INT)
+BEGIN
+	SELECT * FROM `group` WHERE `id_teacher` = `teacherId`;
 END$$
 
 DELIMITER ;

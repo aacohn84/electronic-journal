@@ -7,8 +7,10 @@ GET     /                           controllers.Application.index()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
-
+GET		/writePrompt				controllers.Application.writePrompt()
 POST	/submitPrompt				controllers.Application.submitPrompt()
 GET		/mostRecentPrompt			controllers.Application.showMostRecentPrompt()
 POST	/saveResponse				controllers.Application.saveResponse()
 GET     /classes	                controllers.Application.showClasses()
+GET		/login						controllers.Application.login()
+POST	/authenticate				controllers.Application.authenticate()

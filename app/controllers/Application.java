@@ -8,7 +8,6 @@ import models.Group;
 import models.Prompt;
 import models.Response;
 import models.User;
-import models.WritingFeed;
 import play.*;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -25,9 +24,17 @@ public class Application extends Controller {
 			User.Form.SignUp.class);
 
 	public static Result index() {
-		return ok(writePrompt.render(1));
+		return redirect("/login");
 	}
 
+	public static Result writePrompt() {
+		DynamicForm requestData = form().bindFromRequest();
+		String groupIdStr = requestData.get("groupId");
+		int groupId = Integer.parseInt(groupIdStr);
+		
+		return ok(writePrompt.render(groupId));
+	}
+	
 	/**
 	 * Submit new prompt
 	 */
@@ -43,7 +50,7 @@ public class Application extends Controller {
 		 */
 
 		try {
-			EJDatabase.writePrompt(1, groupId, promptText);
+			EJDatabase.writePrompt(groupId, promptText);
 		} catch (EJDatabaseException e) {
 			e.printStackTrace();
 		}
@@ -97,43 +104,54 @@ public class Application extends Controller {
 	}
 	
 	public static Result showClasses() {
-		ArrayList<Group> groups = EJDatabase.getGroups(2);
-		return ok(showClasses.render(groups));
+		ArrayList<Group> groups = null;
+		Call action = null;
+		if (EJDatabase.isTeacher(1)) {
+			groups = EJDatabase.getGroupsTaughtByUser(1);
+			action = routes.Application.writePrompt();
+		} else {
+			groups = EJDatabase.getGroups(1);
+			action = routes.Application.showMostRecentPrompt();
+		}
+		return ok(showClasses.render(groups, action));
 	}
 	
-	public static Result chooseClass() {
-		String groupIdStr = request().getQueryString("groupId");
-		int groupId = Integer.parseInt(groupIdStr);
-		
-		return null;
-	}
-
 	/**
 	 * Login page.
 	 */
-	/*
-	 * public static Result login() { return ok( login.render(loginForm) ); }
-	 */
+	 public static Result login() {
+		 // authenticate the user
+		 // decide which 
+		 return ok(login.render());
+	 }
+	 
 
 	/**
 	 * Handle login form submission.
 	 */
-	/*
-	 * public static Result authenticate() { Form<User.Form> filledLoginForm =
-	 * loginForm.bindFromRequest();
-	 * 
-	 * if (filledLoginForm.hasErrors()) { return
-	 * badRequest(login.render(loginForm)); } else { User.Form userInfo =
-	 * filledLoginForm.get(); String username = userInfo.getUsername(); String
-	 * password = userInfo.getPassword();
-	 * 
-	 * Logger.info("Authenticating user: " + username); User user =
-	 * User.authenticate(username, password);
-	 * 
-	 * if (user == null) { Logger.info(username +
-	 * " failed to authenticate: bad password"); } else { Logger.info(username +
-	 * " logged in."); } } }
-	 */
+	public static Result authenticate() {
+		Form<User.Form> filledLoginForm = loginForm.bindFromRequest();
+
+		if (filledLoginForm.hasErrors()) {
+			return badRequest(login.render());
+		}
+		
+		User.Form userInfo = filledLoginForm.get();
+		String username = userInfo.getUsername();
+		String password = userInfo.getPassword();
+
+		Logger.info("Authenticating user: " + username);
+		User user = User.authenticate(username, password);
+
+		if (user == null) {
+			Logger.info(username + " failed to authenticate: bad password");
+			return redirect("/login");
+		} else {
+			Logger.info(username + " logged in.");
+			return redirect("/classes");
+		}
+	}
+	 
 
 	/**
 	 * Logout and clean the session.

@@ -6,7 +6,7 @@ public class UserManager extends RecordManager {
 
 	private UserManager() {}
 
-	private static UserManager getInstance() {
+	public static UserManager getInstance() {
 		if (instance == null) {
 			instance = new UserManager();
 		}
