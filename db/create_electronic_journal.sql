@@ -360,7 +360,7 @@ BEGIN
 	) `prompt_response`
 	USING(`id_prompt`)
 	WHERE `id_group` = groupId
-	ORDER BY `prompt`.`creation_date`
+	ORDER BY `prompt`.`creation_date` DESC
 	LIMIT 1;
 END$$
 

@@ -1,6 +1,7 @@
 package controllers;
 
 import java.util.ArrayList;
+import java.util.Map.Entry;
 
 import models.EJDatabase;
 import models.EJDatabaseException;
@@ -13,6 +14,7 @@ import play.data.DynamicForm;
 import play.data.Form;
 import static play.data.Form.form;
 import play.mvc.*;
+import play.mvc.Http.Session;
 import util.Pair;
 import views.html.*;
 
@@ -27,6 +29,7 @@ public class Application extends Controller {
 		return redirect("/login");
 	}
 
+	@Security.Authenticated(Secured.class)
 	public static Result writePrompt() {
 		DynamicForm requestData = form().bindFromRequest();
 		String groupIdStr = requestData.get("groupId");
@@ -38,16 +41,13 @@ public class Application extends Controller {
 	/**
 	 * Submit new prompt
 	 */
+	@Security.Authenticated(Secured.class)
 	public static Result submitPrompt() {
 		// parse POST request
 		DynamicForm postData = form().bindFromRequest();
 		String promptText = postData.get("promptText");
 		String groupIdStr = postData.get("groupId");
 		int groupId = Integer.parseInt(groupIdStr);
-		/*
-		 * String creatorStr = session().get("userId"); int creator =
-		 * Integer.parseInt(creatorStr);
-		 */
 
 		try {
 			EJDatabase.writePrompt(groupId, promptText);
@@ -58,15 +58,16 @@ public class Application extends Controller {
 		return ok();
 	}
 
+	@Security.Authenticated(Secured.class)
 	public static Result showMostRecentPrompt() {
 		DynamicForm requestData = form().bindFromRequest();
 		String groupIdStr = requestData.get("groupId");
 		int groupId = Integer.parseInt(groupIdStr);
-		/*String responderIdStr = session().get("userId");
-		int responderId = Integer.parseInt(responderIdStr);*/
+		String responderIdStr = session().get("userId");
+		int responderId = Integer.parseInt(responderIdStr);
 
 		Pair<Prompt, Response> mostRecentPromptAndResponse = EJDatabase
-				.getMostRecentPromptAndResponse(groupId, 2);
+				.getMostRecentPromptAndResponse(groupId, responderId);
 		
 		if (mostRecentPromptAndResponse == null) {
 			return ok("No prompts exist for this class yet.");
@@ -81,6 +82,7 @@ public class Application extends Controller {
 	/**
 	 * Save response
 	 */
+	@Security.Authenticated(Secured.class)
 	public static Result saveResponse() {
 		// parse POST request
 		DynamicForm requestData = form().bindFromRequest();
@@ -89,13 +91,12 @@ public class Application extends Controller {
 		String groupIdStr = requestData.get("groupId");
 		
 		int promptId = Integer.parseInt(promptIdStr);
-		/*
-		 * String creatorStr = session().get("userId"); int creator =
-		 * Integer.parseInt(creatorStr);
-		 */
+
+		String creatorIdStr = session().get("userId");
+		int creatorId = Integer.parseInt(creatorIdStr);
 
 		try {
-			EJDatabase.saveResponse(2, promptId, responseText);
+			EJDatabase.saveResponse(creatorId, promptId, responseText);
 		} catch (EJDatabaseException e) {
 			e.printStackTrace();
 		}
@@ -103,14 +104,27 @@ public class Application extends Controller {
 		return redirect("/mostRecentPrompt?groupId=" + groupIdStr);
 	}
 	
+	/**
+	 * Given a prompt ID and user ID, shows the corresponding prompt and
+	 * response
+	 * 
+	 * @return
+	 */
+	public static Result viewPrompt() {
+		return null;
+	}
+	
+	@Security.Authenticated(Secured.class)
 	public static Result showClasses() {
 		ArrayList<Group> groups = null;
 		Call action = null;
-		if (EJDatabase.isTeacher(1)) {
-			groups = EJDatabase.getGroupsTaughtByUser(1);
+		String userIdStr = session().get("userId");
+		int userId = Integer.parseInt(userIdStr);
+		if (EJDatabase.isTeacher(userId)) {
+			groups = EJDatabase.getGroupsTaughtByUser(userId);
 			action = routes.Application.writePrompt();
 		} else {
-			groups = EJDatabase.getGroups(1);
+			groups = EJDatabase.getGroups(userId);
 			action = routes.Application.showMostRecentPrompt();
 		}
 		return ok(showClasses.render(groups, action));
@@ -147,6 +161,12 @@ public class Application extends Controller {
 			Logger.info(username + " failed to authenticate: bad password");
 			return redirect("/login");
 		} else {
+			session().put("username", username);
+			session().put("userId", String.valueOf(user.getId()));
+			Session s = session();
+			for (Entry<String, String> e : s.entrySet()) {
+				System.out.println(e.getKey() + ", " + e.getValue());
+			}
 			Logger.info(username + " logged in.");
 			return redirect("/classes");
 		}

@@ -237,6 +237,7 @@ public class EJDatabase {
 	}
 	
 	public static boolean isTeacher(int userId) {
+		// TODO: Fix the stored procedure so it doesn't cause an exception when the user is not a teacher
 		final String isTeacherCall = "{call IS_TEACHER(?,?)}";
 		
 		boolean isTeacher = false;
