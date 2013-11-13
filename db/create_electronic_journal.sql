@@ -239,7 +239,7 @@ DELIMITER $$
 USE `electronic-journal`$$
 CREATE PROCEDURE `WRITE_PROMPT` (IN `groupId` INT, IN `promptText` VARCHAR(1024))
 BEGIN
-	INSERT INTO `Prompt` (
+	INSERT INTO `prompt` (
 		`id_group`,
 		`text`,
 		`creation_date`
