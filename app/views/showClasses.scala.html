@@ -1,6 +1,7 @@
 @(groups: java.util.ArrayList[Group], action: Call)
 
 @main("Choose class") {
+  <h3>Choose a class:</h3>
   <ul>
     @for(group <- groups) {
     	<li><a href="@action?groupId=@group.getGroupId()">@group.getSubject(), period @group.getPeriod()</a></li>

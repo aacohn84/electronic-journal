@@ -1,7 +1,7 @@
 @(groupId: Integer)
 
 @main("title") {
-  <form method="post" action="@routes.Application.submitPrompt()">
+  <form method="post" action="@routes.Teacher.submitPrompt()">
     <h2>Write a prompt!</h2>
     <input type="hidden" name="groupId" value="@groupId">
     <textarea name="promptText"></textarea>

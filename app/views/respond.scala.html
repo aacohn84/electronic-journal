@@ -1,11 +1,11 @@
 @(prompt: Prompt, response: models.Response)
 
 @main("title") {
-  <form method="post" action="@routes.Application.saveResponse()">
+  <form method="post" action="@routes.Student.saveResponse()">
     <h2>Respond to this prompt:</h2>
     <div>
       @if(prompt != null) {
-      	@prompt.getText()
+      	<p>@prompt.getText()</p>
       }
     </div>
     <input type="hidden" name="promptId" value="@prompt.getPromptId()">
