@@ -2,9 +2,9 @@ html, body {
 	margin: 0px;
 	padding: 0px;
 	color: #000;
-    background: #a7a09a;
+    /*background: #a7a09a;*/
     font-family: sans-serif;
-    font-size: 12px;
+    font-size: 14px;
 }
 
 a {
@@ -15,7 +15,7 @@ a {
 #content {
 	width: 1024px;
 	margin: 0px auto;
-	background-color: #99C;
+	/*background-color: #99C;*/
 }
 
 #header {
