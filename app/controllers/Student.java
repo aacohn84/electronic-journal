@@ -8,7 +8,7 @@ import models.Response;
 import play.data.DynamicForm;
 import play.mvc.Result;
 import util.Pair;
-import views.html.respond;
+import views.html.student.respond;
 import views.html.student.addClass;
 
 public class Student extends SecuredController {
@@ -54,7 +54,8 @@ public class Student extends SecuredController {
 			e.printStackTrace();
 		}
 
-		return redirect("/mostRecentPrompt?groupId=" + groupIdStr);
+		return redirect(routes.Student.showMostRecentPrompt().toString()
+				+ "?groupId=" + groupIdStr);
 	}
 	
 	public static Result showClassAdditionForm() {
@@ -62,6 +63,13 @@ public class Student extends SecuredController {
 	}
 	
 	public static Result addClass() {
-		return ok();
+		DynamicForm requestData = form().bindFromRequest();
+		String passphrase = requestData.get("passphrase");
+		
+		int studentId = getUserIdFromSession();
+		
+		EJDatabase.addStudentToClass(studentId, passphrase);
+		
+		return redirect(routes.General.showClasses());
 	}
 }

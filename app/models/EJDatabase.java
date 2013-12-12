@@ -373,4 +373,45 @@ public class EJDatabase {
 			e.printStackTrace();
 		}
 	}
+
+	public static void addStudentToClass(int studentId, String passphrase) {
+		
+		final String getGroupQuery = 
+				"SELECT id_group\r\n" + 
+				"FROM `group`\r\n" + 
+				"WHERE passphrase = ?;";
+		
+		final String addStudentQuery = 
+				"INSERT INTO `roster` (\r\n" + 
+				"	id_group,\r\n" + 
+				"	id_user\r\n" + 
+				") VALUES (\r\n" + 
+				"	?,\r\n" + 
+				"	?\r\n" + 
+				");";
+		
+		try (Connection c = DB.getConnection();
+				PreparedStatement getGroupStmt = c
+						.prepareStatement(getGroupQuery);
+				PreparedStatement addStudentStmt = c
+						.prepareStatement(addStudentQuery);) {
+
+			getGroupStmt.setString(1, passphrase);
+			
+			ResultSet getGroupResults = getGroupStmt.executeQuery();
+			
+			int groupId = -1;
+			if (getGroupResults.first()) {
+				groupId = getGroupResults.getInt("id_group");
+			}
+			
+			addStudentStmt.setInt(1, groupId);
+			addStudentStmt.setInt(2, studentId);
+			
+			addStudentStmt.execute();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 }

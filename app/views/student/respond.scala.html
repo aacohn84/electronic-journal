@@ -1,6 +1,14 @@
 @(prompt: Prompt, response: models.Response)
 
 @main("Respond to a prompt") {
+  <script>
+    function setResponseText() {
+	  @if(response != null) {
+        document.getElementById("responseText").innerHTML = "@response.getText()";
+	  }
+    }
+  </script>
+  
   <form method="post" action="@routes.Student.saveResponse()">
     <h2>Respond to this prompt:</h2>
     <div>
@@ -10,11 +18,11 @@
     </div>
     <input type="hidden" name="promptId" value="@prompt.getPromptId()">
     <input type="hidden" name="groupId" value="@prompt.getGroupId()">
-    @if(response != null) {
-    	<textarea name="responseText">@response.getText()</textarea>
-    } else {
-        <textarea name="responseText"></textarea>
-    }
-    <button type="submit">Save</button>
+    <textarea class="big-text-area" id="responseText" name="responseText"></textarea>
+    <p><button type="submit">Save</button></p>
   </form>
+  
+  <script>
+  	setResponseText();
+  </script>
 }

@@ -7,7 +7,7 @@ import models.Group;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.mvc.Result;
-import views.html.writePrompt;
+import views.html.teacher.writePrompt;
 import views.html.teacher.addClass;
 
 public class Teacher extends SecuredController {

@@ -54,6 +54,7 @@ CREATE TABLE IF NOT EXISTS `electronic-journal`.`group` (
   PRIMARY KEY (`id_group`),
   UNIQUE INDEX `id_group_UNIQUE` (`id_group` ASC),
   INDEX `group_id_teacher_fk_idx` (`id_teacher` ASC),
+  UNIQUE INDEX `passphrase_UNIQUE` (`passphrase` ASC),
   CONSTRAINT `group_id_teacher_fk`
     FOREIGN KEY (`id_teacher`)
     REFERENCES `electronic-journal`.`teacher` (`id_teacher`)
@@ -165,3 +166,13 @@ ENGINE = InnoDB;
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+-- -----------------------------------------------------
+-- Data for table `electronic-journal`.`user`
+-- -----------------------------------------------------
+START TRANSACTION;
+USE `electronic-journal`;
+INSERT INTO `electronic-journal`.`user` (`id_user`, `unique_name`, `password`, `first_name`, `last_name`) VALUES (1, 'aacohn84', 'password', 'Aaron', 'Cohn');
+
+COMMIT;
+
