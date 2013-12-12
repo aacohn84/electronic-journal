@@ -3,7 +3,6 @@ package models;
 import java.sql.PreparedStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -11,6 +10,38 @@ import play.db.DB;
 import util.Pair;
 
 public class EJDatabase {
+
+	public static void createGroup(int teacherId, int period, String subject,
+			String passphrase) {
+		
+		final String createGroupQuery = 
+				"INSERT INTO `group` (\r\n" + 
+				"	id_teacher,\r\n" + 
+				"	period,\r\n" + 
+				"	subject,\r\n" + 
+				"	passphrase\r\n" + 
+				") VALUES (\r\n" + 
+				"	?, \r\n" + 
+				"	?, \r\n" + 
+				"	?, \r\n" + 
+				"	?\r\n" + 
+				");";
+		
+		try (Connection c = DB.getConnection();
+				PreparedStatement createGroupStmt = c
+						.prepareStatement(createGroupQuery);) {
+
+			createGroupStmt.setInt(1, teacherId);
+			createGroupStmt.setInt(2, period);
+			createGroupStmt.setString(3, subject);
+			createGroupStmt.setString(4, passphrase);
+			
+			createGroupStmt.execute();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * Gets a list of groups in which the specified user is a member. Group
@@ -269,7 +300,7 @@ public class EJDatabase {
 			e.printStackTrace();
 		}
 	}
-
+	
 	/**
 	 * Saves a new prompt to the database
 	 * 
@@ -311,13 +342,35 @@ public class EJDatabase {
 		}
 	}
 
-	@SuppressWarnings("unused")
-	private static void printResultSetColumnNames(ResultSet rs) throws SQLException {
-		ResultSetMetaData metaData = rs.getMetaData();
-		int columnCount = metaData.getColumnCount();
-		for (int i = 1; i < columnCount; i++) {
-			System.out.print(metaData.getColumnName(i) + ", ");
+	public static void createStudent(String firstName, String lastName,
+			String username, String password) {
+		
+		final String createStudentQuery = 
+				"INSERT INTO `user` (\r\n" + 
+				"	unique_name,\r\n" + 
+				"	password,\r\n" + 
+				"	first_name,\r\n" + 
+				"	last_name\r\n" + 
+				") VALUES (\r\n" + 
+				"	?,\r\n" + 
+				"	?,\r\n" + 
+				"	?,\r\n" + 
+				"	?\r\n" + 
+				");";
+		
+		try (Connection c = DB.getConnection();
+				PreparedStatement createStudentStmt = c
+						.prepareStatement(createStudentQuery);) {
+			
+			createStudentStmt.setString(1, username);
+			createStudentStmt.setString(2, password);
+			createStudentStmt.setString(3, firstName);
+			createStudentStmt.setString(4, lastName);
+			
+			createStudentStmt.execute();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
-		System.out.print(metaData.getColumnName(columnCount) + "\n");
 	}
 }

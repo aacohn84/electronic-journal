@@ -1,10 +1,10 @@
 @(groupId: Integer)
 
-@main("title") {
+@main("Write a prompt") {
   <form method="post" action="@routes.Teacher.submitPrompt()">
     <h2>Write a prompt!</h2>
     <input type="hidden" name="groupId" value="@groupId">
-    <textarea name="promptText"></textarea>
+    <textarea name="promptText" style="width:60%"></textarea>
     <button type="submit">Submit</button>
   </form>
 }

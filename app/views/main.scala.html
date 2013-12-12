@@ -1,9 +1,10 @@
 @* main Template File *@
-@(param: Any)(content: Html)
+@(title: String)(content: Html)
 
 <!DOCTYPE HTML>
 <html>
   <head>
+    <title>@title</title>
     <link type="text/css" href="@routes.Assets.at("stylesheets/main.css")" rel="stylesheet">
   </head>
   <body>

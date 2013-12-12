@@ -1,0 +1,23 @@
+@(param: Any)
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="ISO-8859-1">
+    <title>Create a new account</title>
+    <link type="text/css" href="@routes.Assets.at("stylesheets/main.css")" rel="stylesheet">
+  </head>
+  <body>
+    <div id="content">
+      <h3>Create a new account:</h3>
+      <form method="post" action="@routes.Application.createAccount()">
+        <p><label for="firstName">First name: </label><input type="text" name="firstName" required></p>
+        <p><label for="lastName">Last name: </label><input type="text" name="lastName" required></p>
+        <p><label for="username">User name: </label><input type="text" name="username" required></p>
+        <p><label for="password">Password: </label><input type="password" name="password" required></p>
+        <p><label for="passwordRetype">Confirm password: </label><input type="password" name="passwordRetype" required></p>
+        <p><input type="submit" value="Create account!"></p>
+      </form>
+    </div>
+  </body>
+</html>

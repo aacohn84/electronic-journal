@@ -9,6 +9,7 @@ import play.data.DynamicForm;
 import play.mvc.Result;
 import util.Pair;
 import views.html.respond;
+import views.html.student.addClass;
 
 public class Student extends SecuredController {
 	
@@ -54,5 +55,13 @@ public class Student extends SecuredController {
 		}
 
 		return redirect("/mostRecentPrompt?groupId=" + groupIdStr);
+	}
+	
+	public static Result showClassAdditionForm() {
+		return ok(addClass.render());
+	}
+	
+	public static Result addClass() {
+		return ok();
 	}
 }

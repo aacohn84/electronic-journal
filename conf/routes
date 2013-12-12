@@ -7,11 +7,25 @@ GET     /                           controllers.Application.index()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
-GET		/writePrompt				controllers.Teacher.writePrompt()
-POST	/submitPrompt				controllers.Teacher.submitPrompt()
-GET		/mostRecentPrompt			controllers.Student.showMostRecentPrompt()
-POST	/saveResponse				controllers.Student.saveResponse()
+
+# Teacher (secured)
+GET		/teacher/writePrompt		controllers.Teacher.writePrompt()
+POST	/teacher/submitPrompt		controllers.Teacher.submitPrompt()
+GET		/teacher/addClass			controllers.Teacher.showClassCreationForm()
+POST	/teacher/addClass			controllers.Teacher.createClass()
+
+# Student (secured)
+GET		/student/mostRecentPrompt	controllers.Student.showMostRecentPrompt()
+POST	/student/saveResponse		controllers.Student.saveResponse()
+GET		/student/addClass			controllers.Student.showClassAdditionForm()
+POST	/student/addClass			controllers.Student.addClass()
+
+# General (secured)
 GET     /classes	                controllers.General.showClasses()
+
+# Application (unsecured)
 GET		/login						controllers.Application.login()
 GET		/logout						controllers.Application.logout()
 POST	/authenticate				controllers.Application.authenticate()
+POST	/createAccount				controllers.Application.createAccount()
+GET		/createAccount				controllers.Application.showAccountCreationForm()

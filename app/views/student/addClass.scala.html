@@ -1,0 +1,9 @@
+
+@main("Add a class") {
+  <h3>Add a class: </h3>
+  <form method="post" action="@routes.Student.addClass()">
+    <label for="passphrase">Type the passphrase that your teacher gave to you: </label>
+    <input type="text" name="passphrase">
+    <p><input type="submit" value="Add the class!"></p>
+  </form>
+}

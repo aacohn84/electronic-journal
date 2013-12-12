@@ -1,0 +1,21 @@
+@(param: Any)
+
+@main("Add a class") {
+  <form action="@routes.Teacher.createClass()" method="post">
+    <h3>Enter the details of your new class:</h3>
+    <table>
+      <tr>
+        <td>Period:</td><td><input type="number" name="period" min="1" max="7"></td>
+      </tr>
+      <tr>
+        <td>Subject:</td><td><input type="text" name="subject"></td>
+      </tr>
+      <tr>
+        <td>Passphrase:</td><td><input type="text" name="passphrase"></td><td>(Write this down! It's the only way students can see prompts for this class.)</td>
+      </tr>
+      <tr>
+        <td><input type="submit" value="Add the class!"></td>
+      </tr>
+    </table>
+  </form>
+}

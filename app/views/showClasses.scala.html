@@ -1,10 +1,32 @@
-@(groups: java.util.ArrayList[Group], action: Call)
+@(groups: java.util.List[Group], actions: General.ShowClassesActions)
+
+@formattedPeriod(periodNum: Integer) = @{
+	var endsIn = periodNum % 10;
+	var formatted = "";
+	if (periodNum > 0 && periodNum < 10 || periodNum > 19) {
+    	if (endsIn == 1) {
+    		formatted = "st";
+    	} else if (endsIn == 2) {
+    		formatted = "nd";
+    	} else if (endsIn == 3) {
+    		formatted = "rd";
+    	} else {
+    		formatted = "th";
+    	}
+    } else {
+    	formatted = "th";
+    }
+    
+    formatted = Integer.toString(periodNum) + formatted;
+    formatted;
+}
 
 @main("Choose class") {
   <h3>Choose a class:</h3>
-  <ul>
+  <ul style="list-style: none;">
     @for(group <- groups) {
-    	<li><a href="@action?groupId=@group.getGroupId()">@group.getSubject(), period @group.getPeriod()</a></li>
+    	<li><a href="@actions.getChooseClass()?groupId=@group.getGroupId()">@formattedPeriod(group.getPeriod()) period @group.getSubject()</a></li>
     }
+    <li><a href="@actions.getAddClass()">Add a new class...</a></li>
   </ul>
 }

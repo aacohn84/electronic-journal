@@ -57,6 +57,13 @@ public class User {
 		return u;
 	}
 
+	/**
+	 * A class to represent Login and SignUp forms for users. Meant to be used
+	 * in conjunction with {@link play.data.Form}.
+	 * 
+	 * @author Aaron Cohn
+	 * 
+	 */
 	public static class Form {
 		public interface Login {};
 		public interface SignUp {};

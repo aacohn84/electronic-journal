@@ -1,32 +1,33 @@
 package controllers;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import models.EJDatabase;
 import models.Group;
 import play.mvc.Call;
-import play.mvc.Controller;
 import play.mvc.Result;
-import play.mvc.Security;
 import views.html.showClasses;
 
 public class General extends SecuredController {
-	
+
 	public static Result showClasses() {
-		ArrayList<Group> groups = null;
-		Call action = null;
-		String userIdStr = session().get("userId");
-		int userId = Integer.parseInt(userIdStr);
+
+		int userId = getUserIdFromSession();
+		List<Group> groups = null;
+		ShowClassesActions actions = new ShowClassesActions();
 		if (EJDatabase.isTeacher(userId)) {
 			groups = EJDatabase.getGroupsTaughtByUser(userId);
-			action = routes.Teacher.writePrompt();
+			actions.setChooseClass(routes.Teacher.writePrompt());
+			actions.setAddClass(routes.Teacher.showClassCreationForm());
 		} else {
 			groups = EJDatabase.getGroups(userId);
-			action = routes.Student.showMostRecentPrompt();
+			actions.setChooseClass(routes.Student.showMostRecentPrompt());
+			actions.setAddClass(routes.Student.showClassAdditionForm());
 		}
-		return ok(showClasses.render(groups, action));
+
+		return ok(showClasses.render(groups, actions));
 	}
-	
+
 	/**
 	 * Given a prompt ID and user ID, shows the corresponding prompt and
 	 * response
@@ -37,4 +38,13 @@ public class General extends SecuredController {
 		return null;
 	}
 
+	public static class ShowClassesActions {
+		private Call chooseClass;
+		private Call addClass;
+
+		public Call getChooseClass() { return chooseClass; }
+		public Call getAddClass() { return addClass; }
+		public void setChooseClass(Call chooseClass) { this.chooseClass = chooseClass; }
+		public void setAddClass(Call addClass) { this.addClass = addClass; }
+	}
 }
